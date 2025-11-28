@@ -1,0 +1,123 @@
+/*
+resource "aws_s3_bucket" "dynamodb_exports" {
+  bucket        = "${terraform.workspace}-dynamodb-exports"
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_versioning" "dynamodb_exports" {
+  bucket = aws_s3_bucket.dynamodb_exports.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "dynamodb_exports" {
+  bucket = aws_s3_bucket.dynamodb_exports.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+  ignore_public_acls      = true
+}
+
+data "archive_file" "dynamo_export_s3" {
+  type        = "zip"
+  source_file = "${path.module}/lambda/dynamo_export_s3.js"
+  output_path = "${path.module}/build/dynamo_export_s3.zip"
+}
+
+resource "aws_lambda_function" "dynamodb_export" {
+  function_name = "${terraform.workspace}-dynamodb-export"
+  role          = aws_iam_role.lambda_export_role.arn
+  runtime       = "nodejs18.x"
+  handler       = "index.handler"
+  filename      = data.archive_file.dynamo_export_s3.output_path
+  environment {
+    variables = {
+      TABLE_ARN = aws_dynamodb_table.transactions.arn
+      BUCKET    = aws_s3_bucket.dynamodb_exports.bucket
+    }
+  }
+}
+
+resource "aws_lambda_permission" "allow_event" {
+  statement_id  = "AllowExecutionFromEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.dynamodb_export.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.monthly_export.arn
+}
+
+resource "aws_cloudwatch_event_rule" "monthly_export" {
+  name                = "${terraform.workspace}-monthly-dynamodb-export"
+  description         = "Monthly DynamoDB → S3 export"
+  schedule_expression = "cron(0 0 1 * ? *)"
+}
+
+resource "aws_cloudwatch_event_target" "monthly_lambda_target" {
+  rule      = aws_cloudwatch_event_rule.monthly_export.name
+  target_id = "dynamodb-export"
+  arn       = aws_lambda_function.dynamodb_export.arn
+}
+
+
+# dynamodb->s3 export
+resource "aws_iam_role" "lambda_export_role" {
+  name = "${terraform.workspace}-lambda-dynamodb-export-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_policy" "lambda_export_policy" {
+  name = "${terraform.workspace}-lambda-dynamodb-export-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "dynamodb:ExportTableToPointInTime",
+          "dynamodb:DescribeTable"
+        ]
+        Effect   = "Allow"
+        Resource = aws_dynamodb_table.transactions.arn
+      },
+      {
+        Action = [
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Effect = "Allow"
+        Resource = [
+          aws_s3_bucket.dynamodb_exports.arn,
+          "${aws_s3_bucket.dynamodb_exports.arn}/*"
+        ]
+      },
+      {
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_attach" {
+  role       = aws_iam_role.lambda_export_role.name
+  policy_arn = aws_iam_policy.lambda_export_policy.arn
+}
+*/
