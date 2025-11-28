@@ -7,10 +7,16 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=apigateway,lambda,stepfunctions,dynamodb,cloudwatch,ssm,cloudformation,iam
+      - SERVICES=apigateway,lambda,stepfunctions,dynamodb,cloudwatch,ssm,cloudformation,iam,events,s3
       - DEBUG=1
       - DEFAULT_REGION=us-east-1
       - PERSISTENCE=0
     volumes:
       - "./volume:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - localstack
+
+networks:
+  localstack:
+    name: sam-local-localstack
