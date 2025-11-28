@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "workspaces": [
+    "cdk",
+    "backend",
+    "frontend"
+  ]
+}
