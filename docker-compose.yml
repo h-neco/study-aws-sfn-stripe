@@ -6,9 +6,6 @@ services:
     image: localstack/localstack
     ports:
       - "4566:4566"
-    #extra_hosts:
-    #  - "cdk-hnb659fds-assets-000000000000-us-east-1.localhost:host-gateway"
-    #  - "cdk-local-assets-000000000000-us-east-1.localhost:host-gateway"
     environment:
       - SERVICES=apigateway,lambda,stepfunctions,dynamodb,cloudwatch,ssm,cloudformation,iam
       - DEBUG=1
