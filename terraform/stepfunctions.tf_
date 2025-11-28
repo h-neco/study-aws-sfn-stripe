@@ -1,0 +1,24 @@
+resource "aws_sfn_state_machine" "payment_processor" {
+  name     = "${terraform.workspace}-PaymentProcessorSFN"
+  role_arn = aws_iam_role.sfn_role.arn
+
+  definition = <<EOF
+{
+  "Comment": "Payment async flow",
+  "StartAt": "WaitForWebhook",
+  "States": {
+    "WaitForWebhook": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+      "Parameters": {
+        "FunctionName": "${aws_lambda_function.stripe_webhook_handler.arn}",
+        "Payload": {
+          "taskToken.$": "$.taskToken"
+        }
+      },
+      "End": true
+    }
+  }
+}
+EOF
+}

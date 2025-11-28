@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "strict": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./src/@types"],
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*", "test/index.js"],
+  "exclude": ["test"]
+}

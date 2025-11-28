@@ -1,0 +1,24 @@
+{
+  "name": "payment_initiator",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.590.0",
+    "@aws-sdk/client-lambda": "^3.940.0",
+    "@aws-sdk/lib-dynamodb": "^3.590.0",
+    "@smithy/node-http-handler": "^3.0.0",
+    "@types/aws-lambda": "^8.10.159",
+    "aws-sdk-client-mock": "^4.0.1",
+    "axios": "^1.13.2",
+    "dayjs": "^1.11.11",
+    "esbuild": "^0.20.2",
+    "typescript": "^5.4.5",
+    "uuid": "^13.0.0"
+  },
+  "scripts": {
+    "build": "tsc --noEmit && rm -rf ./dist && node build.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "prettier": "^3.0.0"
+  }
+}
