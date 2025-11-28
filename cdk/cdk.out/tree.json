@@ -1,0 +1,231 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": {
+      "local-DDBStack": {
+        "id": "local-DDBStack",
+        "path": "local-DDBStack",
+        "children": {
+          "TransactionsTable": {
+            "id": "TransactionsTable",
+            "path": "local-DDBStack/TransactionsTable",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "local-DDBStack/TransactionsTable/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::DynamoDB::Table",
+                  "aws:cdk:cloudformation:props": {
+                    "attributeDefinitions": [
+                      {
+                        "attributeName": "transactionId",
+                        "attributeType": "S"
+                      }
+                    ],
+                    "billingMode": "PAY_PER_REQUEST",
+                    "keySchema": [
+                      {
+                        "attributeName": "transactionId",
+                        "keyType": "HASH"
+                      }
+                    ],
+                    "streamSpecification": {
+                      "streamViewType": "NEW_AND_OLD_IMAGES"
+                    },
+                    "tableName": "LOCAL-TransactionsTable"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_dynamodb.CfnTable",
+                  "version": "2.176.0"
+                }
+              },
+              "ScalingRole": {
+                "id": "ScalingRole",
+                "path": "local-DDBStack/TransactionsTable/ScalingRole",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.176.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_dynamodb.Table",
+              "version": "2.176.0"
+            }
+          },
+          "ProductsTable": {
+            "id": "ProductsTable",
+            "path": "local-DDBStack/ProductsTable",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "local-DDBStack/ProductsTable/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::DynamoDB::Table",
+                  "aws:cdk:cloudformation:props": {
+                    "attributeDefinitions": [
+                      {
+                        "attributeName": "productId",
+                        "attributeType": "S"
+                      }
+                    ],
+                    "billingMode": "PAY_PER_REQUEST",
+                    "keySchema": [
+                      {
+                        "attributeName": "productId",
+                        "keyType": "HASH"
+                      }
+                    ],
+                    "tableName": "LOCAL-ProductsTable"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_dynamodb.CfnTable",
+                  "version": "2.176.0"
+                }
+              },
+              "ScalingRole": {
+                "id": "ScalingRole",
+                "path": "local-DDBStack/ProductsTable/ScalingRole",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.176.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_dynamodb.Table",
+              "version": "2.176.0"
+            }
+          },
+          "ConnectionsTable": {
+            "id": "ConnectionsTable",
+            "path": "local-DDBStack/ConnectionsTable",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "local-DDBStack/ConnectionsTable/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::DynamoDB::Table",
+                  "aws:cdk:cloudformation:props": {
+                    "attributeDefinitions": [
+                      {
+                        "attributeName": "connectionId",
+                        "attributeType": "S"
+                      }
+                    ],
+                    "billingMode": "PAY_PER_REQUEST",
+                    "keySchema": [
+                      {
+                        "attributeName": "connectionId",
+                        "keyType": "HASH"
+                      }
+                    ],
+                    "tableName": "LOCAL-ConnectionsTable",
+                    "timeToLiveSpecification": {
+                      "attributeName": "ttl",
+                      "enabled": true
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_dynamodb.CfnTable",
+                  "version": "2.176.0"
+                }
+              },
+              "ScalingRole": {
+                "id": "ScalingRole",
+                "path": "local-DDBStack/ConnectionsTable/ScalingRole",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.176.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_dynamodb.Table",
+              "version": "2.176.0"
+            }
+          },
+          "TransactionsTableName": {
+            "id": "TransactionsTableName",
+            "path": "local-DDBStack/TransactionsTableName",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.176.0"
+            }
+          },
+          "ProductsTableName": {
+            "id": "ProductsTableName",
+            "path": "local-DDBStack/ProductsTableName",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.176.0"
+            }
+          },
+          "ConnectionsTableName": {
+            "id": "ConnectionsTableName",
+            "path": "local-DDBStack/ConnectionsTableName",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.176.0"
+            }
+          },
+          "CDKMetadata": {
+            "id": "CDKMetadata",
+            "path": "local-DDBStack/CDKMetadata",
+            "children": {
+              "Default": {
+                "id": "Default",
+                "path": "local-DDBStack/CDKMetadata/Default",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnResource",
+                  "version": "2.176.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.4.3"
+            }
+          },
+          "BootstrapVersion": {
+            "id": "BootstrapVersion",
+            "path": "local-DDBStack/BootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.176.0"
+            }
+          },
+          "CheckBootstrapVersion": {
+            "id": "CheckBootstrapVersion",
+            "path": "local-DDBStack/CheckBootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnRule",
+              "version": "2.176.0"
+            }
+          }
+        },
+        "constructInfo": {
+          "fqn": "aws-cdk-lib.Stack",
+          "version": "2.176.0"
+        }
+      },
+      "Tree": {
+        "id": "Tree",
+        "path": "Tree",
+        "constructInfo": {
+          "fqn": "constructs.Construct",
+          "version": "10.4.3"
+        }
+      }
+    },
+    "constructInfo": {
+      "fqn": "aws-cdk-lib.App",
+      "version": "2.176.0"
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "version": "39.0.0",
+  "artifacts": {
+    "local-DDBStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "local-DDBStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/local/version"
+      }
+    },
+    "local-DDBStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://000000000000/us-east-1",
+      "properties": {
+        "templateFile": "local-DDBStack.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::000000000000:role/cdk-local-deploy-role-000000000000-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::000000000000:role/cdk-local-cfn-exec-role-000000000000-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-local-assets-000000000000-us-east-1/6ac4d9b97b32b8eeeb57cbf4bb90009e2ec7c9405047b61b5b96e15c20504878.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/local/version",
+        "additionalDependencies": [
+          "local-DDBStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::000000000000:role/cdk-local-lookup-role-000000000000-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/local/version"
+        }
+      },
+      "dependencies": [
+        "local-DDBStack.assets"
+      ],
+      "metadata": {
+        "/local-DDBStack/TransactionsTable": [
+          {
+            "type": "aws:cdk:hasPhysicalName",
+            "data": {
+              "Ref": "TransactionsTable0A011FCB"
+            }
+          }
+        ],
+        "/local-DDBStack/TransactionsTable/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TransactionsTable0A011FCB"
+          }
+        ],
+        "/local-DDBStack/ProductsTable": [
+          {
+            "type": "aws:cdk:hasPhysicalName",
+            "data": {
+              "Ref": "ProductsTable241ADBFF"
+            }
+          }
+        ],
+        "/local-DDBStack/ProductsTable/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ProductsTable241ADBFF"
+          }
+        ],
+        "/local-DDBStack/ConnectionsTable": [
+          {
+            "type": "aws:cdk:hasPhysicalName",
+            "data": {
+              "Ref": "ConnectionsTable8000B8A1"
+            }
+          }
+        ],
+        "/local-DDBStack/ConnectionsTable/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ConnectionsTable8000B8A1"
+          }
+        ],
+        "/local-DDBStack/TransactionsTableName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TransactionsTableName"
+          }
+        ],
+        "/local-DDBStack/ProductsTableName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ProductsTableName"
+          }
+        ],
+        "/local-DDBStack/ConnectionsTableName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ConnectionsTableName"
+          }
+        ],
+        "/local-DDBStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/local-DDBStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/local-DDBStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "local-DDBStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}
