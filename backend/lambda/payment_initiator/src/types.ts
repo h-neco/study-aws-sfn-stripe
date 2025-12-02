@@ -22,8 +22,10 @@ export interface Transaction {
   quantity: number;
   amount: number;
   status: 'pending' | 'failed' | 'success';
-  createdAt: string;
-  updatedAt: string;
+  failedCode?: string; // エラーコードや理由を格納
+  createdAt: string; // 'YYYY-MM-DD HH:mm:ss'
+  updatedAt: string; // 'YYYY-MM-DD HH:mm:ss'
+  expiresAt?: number; // UNIXタイムスタンプ (TTL 用)
 }
 
 export interface Product {

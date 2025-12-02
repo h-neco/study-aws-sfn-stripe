@@ -1,3 +1,17 @@
 ### 概要
 
-sam local invoke paymentInixxx --docker-network sam-local-localstack
+```bash
+aws --endpoint-url=http://localhost:4566 dynamodb put-item \
+ --table-name local-ProductsTable \
+ --item '{
+"productsId": {"S": "hogehoge1234"},
+"name": {"S": "Sample Product B"},
+"price": {"N": "3000"}
+}'
+```
+
+```bash
+$ npm run build
+
+$ sam local invoke paymentInitiator --event events/event.json --docker-network localstack_stripe_lab
+```

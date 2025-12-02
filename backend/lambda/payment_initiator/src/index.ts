@@ -1,11 +1,13 @@
 import { APIGatewayProxyResult, APIGatewayProxyEventV2 } from 'aws-lambda';
 import { PaymentService } from './services/PaymentService';
 import { DynamoDBRepository } from './repositories/DynamoDBRepository';
+import { StepFunctionRepository } from './repositories/StepFunctionRepository';
 import { getEnv, isValidBody, respondError } from './types';
 
 const env = getEnv();
-const repository = new DynamoDBRepository(env);
-const service = new PaymentService(repository);
+const dynamoDBRepository = new DynamoDBRepository(env);
+const stepFunctionRepository = new StepFunctionRepository(env);
+const service = new PaymentService(dynamoDBRepository, stepFunctionRepository);
 
 export const handler = async (
   event: APIGatewayProxyEventV2,

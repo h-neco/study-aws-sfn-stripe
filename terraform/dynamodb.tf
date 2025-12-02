@@ -1,10 +1,10 @@
 resource "aws_dynamodb_table" "transactions" {
   name         = "${terraform.workspace}-TransactionsTable"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "transaction_id"
+  hash_key     = "transactionId"
 
   attribute {
-    name = "transaction_id"
+    name = "transactionId"
     type = "S"
   }
 }
