@@ -194,3 +194,9 @@ resource "aws_api_gateway_deployment" "deployment" {
   ]
   rest_api_id = aws_api_gateway_rest_api.payment_api.id
 }
+
+resource "aws_api_gateway_stage" "deployment" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.payment_api.id
+  stage_name    = terraform.workspace
+}
