@@ -64,3 +64,4 @@ template.yml
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+build/*.zip

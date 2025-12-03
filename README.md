@@ -1,10 +1,27 @@
 - 立ち上げ
 
 ```bash
+  # localstack立ち上げ
   docker compose up -d
-  docker compose down
-  ./backend-build.sh (TODO)
+  # Lambdaのビルド
+  cd backend && ./01-lambda.sh && cd ..
+  # awsの環境構築
   cd terraform && ./01-terraform.sh
+
+  # dummy データ挿入
+  aws --endpoint-url=http://localhost:4566 dynamodb put-item \
+ --table-name local-ProductsTable \
+ --item '{
+"productsId": {"S": "hogehoge1234"},
+"name": {"S": "Sample Product B"},
+"price": {"N": "3000"}
+}'
+```
+
+- クローズ
+
+```
+  docker compose down
 ```
 
 terraform で localstack 内にテーブル作ろうとするとたまにぶっ壊れる。untaint しとくと良い。
