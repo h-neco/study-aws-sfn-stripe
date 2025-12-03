@@ -56,7 +56,6 @@ tmp
 Thumbs.db
 volume
 local.sh
-template.yml
 .pnp.*
 .yarn/*
 !.yarn/patches
