@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Local test Lambda for payment initiator
+
+Resources:
+  paymentInitiator:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/index.handler
+      Runtime: nodejs20.x
+      MemorySize: 128
+      Timeout: 100
+      Description: A Lambda function that returns a static string.
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Environment:
+        Variables:
+          TARGET_ENV: 'local'
+          TRANSACTIONS_TABLE: 'local-TransactionsTable'
+          PRODUCTS_TABLE: 'local-ProductsTable'
+          STEP_FUNCTION_LAMBDA_ARN: 'arn:aws:lambda:local:123456789012:function:mockStepFunction'
+          STRIPE_SECRET_KEY: 'sk_test_XXXXXXXXXXXXXXXXXXXX'
