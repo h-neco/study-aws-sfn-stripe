@@ -10,9 +10,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
-    "typeRoots": ["./node_modules/@types", "./src/@types"],
+    "typeRoots": ["./node_modules/@types", "./src/@types", "jest"],
     "outDir": "./dist"
   },
-  "include": ["src/**/*", "test/index.js"],
+  "include": ["src/**/*", "tests/*test.ts"],
   "exclude": ["test"]
 }

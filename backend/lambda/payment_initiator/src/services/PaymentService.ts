@@ -1,6 +1,6 @@
 import { DynamoDBRepository } from '../repositories/DynamoDBRepository';
 import { StepFunctionRepository } from '../repositories/StepFunctionRepository';
-import { RequestBody } from '../types';
+import { RequestBody, Env, ok, err, Result } from '../types';
 import { v4 as uuid } from 'uuid';
 import axios from 'axios';
 
@@ -12,17 +12,21 @@ export class PaymentService {
 
   async createPayment(
     body: RequestBody,
-  ): Promise<{ transactionId: string; amount: number }> {
+    env: Env,
+  ): Promise<Result<{ transactionId: string; amount: number }>> {
     const { stripeUserId, productId, quantity } = body;
     const transactionId = uuid();
 
-    // 商品情報取得
+    // 商品取得
     const product = await this.db.getProduct(productId);
-    if (!product) throw new Error('Product not found');
+    if (!product) {
+      return err('PRODUCT_NOT_FOUND', 'Product not found');
+    }
+
     const amount = product.price * quantity;
 
-    // Transaction 登録
-    await this.db.createTransaction({
+    // 在庫確保 + Transaction作成
+    const tx = await this.db.createTransactionWithStock({
       transactionId,
       stripeUserId,
       productId,
@@ -31,32 +35,44 @@ export class PaymentService {
       status: 'pending',
     });
 
-    // Stripe User 検証
-    if (!this.db.env.isLocal) {
-      const stripeClient = axios.create({
-        baseURL: 'https://api.stripe.com/v1',
-        headers: {
-          Authorization: `Bearer ${this.db.env.stripeSecretKey}`,
-        },
-        timeout: 3000,
-      });
+    if (!tx.ok) return err(tx.code, tx.message);
+
+    // Stripe 検証（ローカル/Jest ではスキップ）
+    if (!env.isJest && !env.isLocal) {
       try {
-        await stripeClient.get(`/customers/${stripeUserId}`);
-      } catch (err) {
-        await this.db.updateTransactionStatus(transactionId, 'failed', 'S00X');
-        console.error('Invalid stripe userId');
-        return { transactionId: transactionId, amount };
+        const stripe = axios.create({
+          baseURL: 'https://api.stripe.com/v1',
+          headers: { Authorization: `Bearer ${env.stripeSecretKey}` },
+          timeout: 3000,
+        });
+
+        await stripe.get(`/customers/${stripeUserId}`);
+      } catch (e) {
+        await this.db.updateTransactionStatus(
+          transactionId,
+          'failed',
+          'INVALID_STRIPE_USER',
+          productId,
+          quantity,
+        );
+        return err('INVALID_STRIPE_USER', 'Stripe userId is invalid');
       }
     }
+    // StepFunctions起動
+    try {
+      await this.sfn.invokeStepFunction(transactionId, stripeUserId);
+    } catch (e) {
+      await this.db.updateTransactionStatus(
+        transactionId,
+        'failed',
+        'STEP_FUNCTION_ERROR',
+        productId,
+        quantity,
+      );
+      return err('STEP_FUNCTION_ERROR', 'Failed to start Step Function');
+    }
 
-    // Step Functions Lambda 呼び出し
-    await this.sfn
-      .invokeStepFunction(transactionId, stripeUserId)
-      .catch(async (err) => {
-        console.error('Step Function invocation failed:', err);
-        await this.db.updateTransactionStatus(transactionId, 'failed', 'E001');
-      });
-
-    return { transactionId: transactionId, amount };
+    // 成功
+    return ok({ transactionId, amount });
   }
 }

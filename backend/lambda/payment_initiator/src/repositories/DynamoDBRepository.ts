@@ -2,14 +2,14 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   DynamoDBDocumentClient,
   GetCommand,
-  PutCommand,
   UpdateCommand,
+  TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { NodeHttpHandler } from '@smithy/node-http-handler';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { Env, Transaction, Product } from '../types';
+import { Env, Transaction, Product, ok, err, Result } from '../types';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -19,12 +19,18 @@ export class DynamoDBRepository {
   private ddb: DynamoDBDocumentClient;
 
   constructor(public env: Env) {
-    const isLocal = env.targetEnv === 'local';
+    let endpoint;
+    if (env.isLocal) {
+      endpoint = 'http://localstack:4566';
+    } else if (env.isJest) {
+      endpoint = 'http://localhost:4566';
+    } else {
+      endpoint = undefined;
+    }
 
-    // DynamoDB Client
     this.ddb = DynamoDBDocumentClient.from(
       new DynamoDBClient({
-        endpoint: isLocal ? 'http://localstack:4566' : undefined,
+        endpoint: endpoint,
         region: 'us-east-1',
         maxAttempts: 3,
         requestHandler: new NodeHttpHandler({
@@ -40,42 +46,78 @@ export class DynamoDBRepository {
     const result = await this.ddb.send(
       new GetCommand({
         TableName: this.env.productsTable,
-        Key: { productsId: productId },
+        Key: { productId: productId },
       }),
     );
     if (!result.Item) return null;
     return result.Item as Product;
   }
 
-  /** トランザクション作成 */
-  async createTransaction(
+  /**
+   * トランザクション作成 + 在庫を減らす
+   * （Atomic: 在庫確保と購入トランザクション作成を同時に）
+   */
+  async createTransactionWithStock(
     transaction: Omit<Transaction, 'createdAt' | 'updatedAt' | 'expiresAt'>,
-  ): Promise<Transaction> {
+  ): Promise<Result<Transaction>> {
     const now = dayjs().tz().format('YYYY-MM-DD HH:mm:ss');
-    const ttlSeconds: number = 24 * 60 * 60 * 90; // 90days
-    const expiresAt = dayjs().add(ttlSeconds, 'second').unix(); // TTL 秒後
+    const ttlSeconds = 24 * 60 * 60 * 90;
+    const expiresAt = dayjs().add(ttlSeconds, 'second').unix();
 
     const item: Transaction = {
       ...transaction,
       createdAt: now,
       updatedAt: now,
-      expiresAt: expiresAt,
+      expiresAt,
     };
-    await this.ddb.send(
-      new PutCommand({
-        TableName: this.env.transactionsTable,
-        Item: item,
-      }),
-    );
-    return item;
+
+    try {
+      await this.ddb.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: this.env.productsTable,
+                Key: { productId: transaction.productId },
+                UpdateExpression: 'SET stock = stock - :q',
+                ConditionExpression: 'stock >= :q',
+                ExpressionAttributeValues: {
+                  ':q': transaction.quantity,
+                },
+              },
+            },
+            {
+              Put: {
+                TableName: this.env.transactionsTable,
+                Item: item,
+              },
+            },
+          ],
+        }),
+      );
+    } catch (e: any) {
+      const reason = e.CancellationReasons?.[0]?.Code;
+      if (reason === 'ConditionalCheckFailed') {
+        return err('STOCK_NOT_ENOUGH', 'Stock is not enough');
+      }
+      return err('DB_ERROR', e.message);
+    }
+
+    return ok(item);
   }
 
+  /**
+   * トランザクション更新
+   */
   async updateTransactionStatus(
     transactionId: string,
     status: 'pending' | 'success' | 'failed',
-    failedCode?: string, // オプショナル
+    failedCode?: string,
+    productId?: string,
+    quantity?: number,
   ): Promise<void> {
     const now = dayjs().tz().format('YYYY-MM-DD HH:mm:ss');
+
     const expressionAttributeNames: Record<string, string> = {
       '#s': 'status',
       '#ua': 'updatedAt',
@@ -84,13 +126,16 @@ export class DynamoDBRepository {
       ':s': status,
       ':ua': now,
     };
+
     let updateExpression = 'SET #s = :s, #ua = :ua';
+
     if (failedCode !== undefined) {
       updateExpression += ', #fc = :fc';
       expressionAttributeNames['#fc'] = 'failedCode';
       expressionAttributeValues[':fc'] = failedCode;
     }
 
+    // 通常の更新
     await this.ddb.send(
       new UpdateCommand({
         TableName: this.env.transactionsTable,
@@ -100,5 +145,19 @@ export class DynamoDBRepository {
         ExpressionAttributeValues: expressionAttributeValues,
       }),
     );
+
+    // failed → 在庫を戻す
+    if (status === 'failed' && productId && quantity) {
+      await this.ddb.send(
+        new UpdateCommand({
+          TableName: this.env.productsTable,
+          Key: { productId: productId },
+          UpdateExpression: 'SET stock = stock + :q',
+          ExpressionAttributeValues: {
+            ':q': quantity,
+          },
+        }),
+      );
+    }
   }
 }

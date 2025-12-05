@@ -6,7 +6,8 @@ aws --endpoint-url=http://localhost:4566 dynamodb put-item \
  --item '{
 "productsId": {"S": "hogehoge1234"},
 "name": {"S": "Sample Product B"},
-"price": {"N": "3000"}
+"price": {"N": "3000"},
+"stock": {"N": "13"}
 }'
 ```
 
