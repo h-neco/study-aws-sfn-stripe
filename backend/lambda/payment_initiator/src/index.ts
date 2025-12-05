@@ -18,9 +18,9 @@ export const handler = async (
   if (!isValidBody(body)) return respondError(400, 3, 'Invalid body');
 
   try {
-    const result = await service.createPayment(body);
+    const result = await service.createPayment(body, env);
     return {
-      statusCode: 200,
+      statusCode: result.ok ? 200 : 400,
       body: JSON.stringify(result),
     };
   } catch (err: any) {

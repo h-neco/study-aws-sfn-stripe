@@ -9,12 +9,13 @@
   cd terraform && ./01-terraform.sh
 
   # dummy データ挿入
-  aws --endpoint-url=http://localhost:4566 dynamodb put-item \
+aws --endpoint-url=http://localhost:4566 dynamodb put-item \
  --table-name local-ProductsTable \
  --item '{
 "productsId": {"S": "hogehoge1234"},
 "name": {"S": "Sample Product B"},
-"price": {"N": "3000"}
+"price": {"N": "3000"},
+"stock": {"N": "13"}
 }'
 ```
 

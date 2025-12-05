@@ -5,10 +5,17 @@ export class StepFunctionRepository {
   private lambda: LambdaClient;
 
   constructor(public env: Env) {
-    const isLocal = env.targetEnv === 'local';
+    let endpoint;
+    if (env.isLocal) {
+      endpoint = 'http://localstack:4566';
+    } else if (env.isJest) {
+      endpoint = 'http://localhost:4566';
+    } else {
+      endpoint = undefined;
+    }
     // Lambda Client
     this.lambda = new LambdaClient({
-      endpoint: isLocal ? 'http://localstack:4566' : undefined,
+      endpoint: endpoint,
       region: 'us-east-1',
       apiVersion: '2015-03-31',
     });

@@ -7,6 +7,7 @@ export interface Env {
   stepFunctionLambdaArn: string;
   stripeSecretKey: string;
   isLocal: boolean;
+  isJest: boolean;
 }
 
 export interface RequestBody {
@@ -32,6 +33,7 @@ export interface Product {
   productsId: string;
   name: string;
   price: number;
+  stock: number;
 }
 
 // --------------------
@@ -49,14 +51,14 @@ export function getEnv(): Env {
     if (!process.env[v]) throw new Error(`${v} is not defined`);
   }
 
-  const targetEnv = process.env.TARGET_ENV!;
   return {
-    targetEnv,
+    targetEnv: process.env.TARGET_ENV!,
     transactionsTable: process.env.TRANSACTIONS_TABLE!,
     productsTable: process.env.PRODUCTS_TABLE!,
     stepFunctionLambdaArn: process.env.STEP_FUNCTION_LAMBDA_ARN!,
     stripeSecretKey: process.env.STRIPE_SECRET_KEY!,
-    isLocal: targetEnv === 'local',
+    isLocal: process.env.TARGET_ENV === 'local',
+    isJest: process.env.TARGET_ENV === 'jest',
   };
 }
 
@@ -78,3 +80,15 @@ export function isValidBody(body: any): boolean {
   if (typeof body.quantity !== 'number') return false;
   return true;
 }
+
+export type Ok<T> = { ok: true; data: T };
+export type Err = { ok: false; code: string; message: string };
+
+export type Result<T> = Ok<T> | Err;
+
+export const ok = <T>(data: T): Ok<T> => ({ ok: true, data });
+export const err = (code: string, message: string): Err => ({
+  ok: false,
+  code,
+  message,
+});
