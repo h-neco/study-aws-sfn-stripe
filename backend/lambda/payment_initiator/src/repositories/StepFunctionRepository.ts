@@ -27,6 +27,7 @@ export class StepFunctionRepository {
   async invokeStepFunction(
     transactionId: string,
     stripeUserId: string,
+    amount: number,
   ): Promise<void> {
     try {
       await this.lambda.send(
@@ -37,6 +38,7 @@ export class StepFunctionRepository {
             JSON.stringify({
               transactionId,
               stripeUserId,
+              amount,
             }),
           ),
         }),

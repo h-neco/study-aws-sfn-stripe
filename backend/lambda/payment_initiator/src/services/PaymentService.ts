@@ -60,7 +60,7 @@ export class PaymentService {
     }
     // StepFunctions起動
     try {
-      await this.sfn.invokeStepFunction(transactionId, stripeUserId);
+      await this.sfn.invokeStepFunction(transactionId, stripeUserId, amount);
     } catch (e) {
       await this.db.updateTransactionStatus(
         transactionId,
