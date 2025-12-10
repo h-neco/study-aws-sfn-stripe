@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: Local test Lambda for payment initiator
+Description: Local test Lambda for payment invoke
 
 Resources:
-  paymentInitiator:
+  paymentInvoke:
     Type: AWS::Serverless::Function
     Properties:
       Handler: dist/index.handler
@@ -18,5 +18,4 @@ Resources:
           TARGET_ENV: 'local'
           TRANSACTIONS_TABLE: 'local-TransactionsTable'
           PRODUCTS_TABLE: 'local-ProductsTable'
-          STEP_FUNCTION_LAMBDA_ARN: 'arn:aws:lambda:us-east-1:000000000000:function:local-payment-invoke'
           STRIPE_SECRET_KEY: 'sk_test_XXXXXXXXXXXXXXXXXXXX'
