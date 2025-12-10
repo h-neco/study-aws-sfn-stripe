@@ -18,5 +18,5 @@ Resources:
           TARGET_ENV: 'local'
           TRANSACTIONS_TABLE: 'local-TransactionsTable'
           PRODUCTS_TABLE: 'local-ProductsTable'
-          STEP_FUNCTION_LAMBDA_ARN: 'arn:aws:lambda:local:123456789012:function:mockStepFunction'
+          STEP_FUNCTION_LAMBDA_ARN: 'arn:aws:lambda:us-east-1:000000000000:function:local-payment-invoke'
           STRIPE_SECRET_KEY: 'sk_test_XXXXXXXXXXXXXXXXXXXX'
