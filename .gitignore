@@ -1,6 +1,7 @@
 .terraform
 localstack
 terraform.tfstate*
+*.zip
 
 # Logs
 logs
